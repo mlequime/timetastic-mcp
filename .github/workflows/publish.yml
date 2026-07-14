@@ -24,9 +24,14 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Run tests
-        run: uv run --locked pytest
+      - name: Set up Python 3.13
+        run: uv python install 3.13
 
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Run tests
+        run: uv run --python 3.13 pytest
       - name: Build sdist and wheel
         run: uv build
 
