@@ -21,7 +21,8 @@ export TIMETASTIC_API_TOKEN="your-token-here"
 uv run main.py
 ```
 
-> [!IMPORTANT] Only admin users can generate API tokens on Timetastic. The above URL is only accessible to admin users.
+> [!IMPORTANT]
+> Only admin users can generate API tokens on Timetastic. The above URL is only accessible to admin users.
 
 ## Client configuration
 
