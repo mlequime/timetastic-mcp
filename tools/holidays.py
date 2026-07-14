@@ -12,12 +12,31 @@ HolidayStatus = Literal[
 HolidayUpdateAction = Literal["Approve", "Decline", "Delete", "DeleteGroup"]
 BookFor = Literal["User", "Department", "Everyone"]
 
+# Timetastic's Status filter is a bitwise enum: multiple statuses can be
+# combined into a single integer (e.g. Declined | Cancelled == 12).
+_STATUS_BITS: dict[str, int] = {
+    "Pending": 1,
+    "Approved": 2,
+    "Cancelled": 4,
+    "Declined": 8,
+    "PendingOrApproved": 3,  # Pending | Approved
+    "Any": 15,  # all of the above
+}
+
+
+def calculate_status_value(statuses: list[HolidayStatus]) -> int:
+    """Calculate the combined integer value for a list of holiday statuses."""
+    value = 0
+    for status in statuses:
+        value |= _STATUS_BITS[status]
+    return value
+
 
 @mcp.tool()
 async def list_holidays(
     start: str | None = None,
     end: str | None = None,
-    status: HolidayStatus | None = None,
+    status: list[HolidayStatus] | None = None,
     user_ids: str | None = None,
     exclusion_user_ids: str | None = None,
     department_id: int | None = None,
@@ -38,7 +57,10 @@ async def list_holidays(
     Args:
         start: Include holidays on or after this date-time (ISO 8601).
         end: Include holidays before and including this date-time (ISO 8601).
-        status: Filter by status. Defaults to pending + approved if omitted.
+        status: Filter by one or more statuses (combined). Each of ``Pending``,
+            ``Approved``, ``Cancelled``, ``Declined``, ``PendingOrApproved`` or
+            ``Any`` — e.g. ``["Declined", "Cancelled"]`` returns both. Defaults
+            to pending + approved if omitted.
         user_ids: Comma-separated user IDs to include (e.g. ``"12,34"``).
         exclusion_user_ids: Comma-separated user IDs to exclude.
         department_id: Only holidays for this department.
@@ -51,13 +73,18 @@ async def list_holidays(
         transaction_year: Filter to this transaction year.
         page_number: Page to fetch (defaults to 1).
     """
+    # OR the requested statuses into the single integer the API expects.
+    status_value: int | None = None
+    if status:
+        status_value = calculate_status_value(status)
+
     return await get_client().request(
         "GET",
         "/holidays",
         params={
             "Start": start,
             "End": end,
-            "Status": status,
+            "Status": status_value,
             "UserIds": user_ids,
             "ExclusionUserIds": exclusion_user_ids,
             "DepartmentId": department_id,
