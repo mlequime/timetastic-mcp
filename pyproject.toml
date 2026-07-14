@@ -1,21 +1,47 @@
 [project]
 name = "timetastic-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "An unofficial MCP server for Timetastic, exposing its absence & leave API to agentic clients."
 readme = "README.md"
 requires-python = ">=3.13"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Marc Lequime", email = "marc@lequi.me" }]
+keywords = ["mcp", "timetastic", "model-context-protocol", "absence", "leave", "hr"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Scheduling",
+    "Topic :: Software Development :: Libraries",
+]
 dependencies = [
     "httpx>=0.28.1",
     "mcp[cli]>=1.28.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/mlequime/timetastic-mcp"
+Repository = "https://github.com/mlequime/timetastic-mcp"
+Issues = "https://github.com/mlequime/timetastic-mcp/issues"
+
+[project.scripts]
+timetastic-mcp = "timetastic_mcp.main:main"
 
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/timetastic_mcp"]
+
 [tool.pytest.ini_options]
-# Tests import project modules (e.g. `tools.holidays`, `server`) by their
-# top-level names, so the repo root must be importable.
-pythonpath = ["."]
+# The package lives under src/, so make it importable for the test suite.
+pythonpath = ["src"]
 testpaths = ["tests"]

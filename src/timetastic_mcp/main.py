@@ -7,13 +7,13 @@ holidays and webhooks.
 
 Importing ``tools`` registers every tool on the shared ``mcp`` server defined
 in ``server.py``. Set the ``TIMETASTIC_API_TOKEN`` environment variable to an
-admin API token before running, then run with ``uv run main.py``.
+admin API token before running, then run the ``timetastic-mcp`` console script.
 """
 
 from __future__ import annotations
 
-import tools  # noqa: F401 — imported for its tool-registration side effects
-from server import mcp
+from . import tools  # noqa: F401 — imported for its tool-registration side effects
+from .server import mcp
 
 
 def main() -> None:

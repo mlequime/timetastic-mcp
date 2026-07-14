@@ -18,7 +18,7 @@ from collections.abc import AsyncIterator
 
 from mcp.server.fastmcp import FastMCP
 
-from timetastic import TimetasticClient
+from .timetastic import TimetasticClient
 
 _CLIENT: TimetasticClient | None = None
 

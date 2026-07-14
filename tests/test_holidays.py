@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from tools.holidays import _STATUS_BITS, calculate_status_value
+from timetastic_mcp.tools.holidays import _STATUS_BITS, calculate_status_value
 
 
 def test_single_statuses_are_distinct_powers_of_two() -> None:

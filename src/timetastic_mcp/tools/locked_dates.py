@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from server import get_client, mcp
+from ..server import get_client, mcp
 
 LockedDateRecordType = Literal["Organisation", "Department", "User"]
 
