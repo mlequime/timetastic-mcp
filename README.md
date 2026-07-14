@@ -21,6 +21,8 @@ export TIMETASTIC_API_TOKEN="your-token-here"
 uv run main.py
 ```
 
+> [!IMPORTANT] Only admin users can generate API tokens on Timetastic. The above URL is only accessible to admin users.
+
 ## Client configuration
 
 Add the server to your MCP client (e.g. Claude Desktop / Claude Code):
@@ -30,7 +32,12 @@ Add the server to your MCP client (e.g. Claude Desktop / Claude Code):
   "mcpServers": {
     "timetastic": {
       "command": "uv",
-      "args": ["--directory", "/absolute/path/to/timetastic-mcp", "run", "main.py"],
+      "args": [
+        "--directory",
+        "/absolute/path/to/timetastic-mcp",
+        "run",
+        "main.py"
+      ],
       "env": { "TIMETASTIC_API_TOKEN": "your-token-here" }
     }
   }
@@ -41,20 +48,20 @@ Add the server to your MCP client (e.g. Claude Desktop / Claude Code):
 
 Tools are grouped by resource and named `<verb>_<resource>`.
 
-| Group | Tools |
-| --- | --- |
-| **Absences** | `list_absences` |
-| **Holidays** (leave bookings) | `list_holidays`, `get_holiday`, `book_holiday`, `action_holiday` |
-| **Users** | `list_users`, `get_user`, `get_user_contact`, `add_user`, `edit_user`, `archive_user`, `restore_user`, `assign_public_holidays_to_user` |
-| **Departments** | `list_departments`, `get_department`, `add_department`, `edit_department`, `delete_department` |
-| **Leave types** | `list_leave_types`, `get_leave_type`, `list_leave_type_colors`, `list_leave_type_icons`, `create_leave_type`, `update_leave_type`, `delete_leave_type` |
-| **Allowances** | `list_all_allowances`, `get_user_allowance`, `update_user_allowance`, `update_user_carry_forward`, `add_user_toil`, `update_user_toil`, `delete_user_toil` |
-| **Locked dates** | `list_locked_dates`, `add_locked_date`, `delete_locked_date` |
-| **Public holidays** | `list_public_holidays`, `get_public_holiday`, `list_public_holiday_countries` |
-| **Webhooks** | `list_webhook_events` |
+| Group                         | Tools                                                                                                                                                      |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Absences**                  | `list_absences`                                                                                                                                            |
+| **Holidays** (leave bookings) | `list_holidays`, `get_holiday`, `book_holiday`, `action_holiday`                                                                                           |
+| **Users**                     | `list_users`, `get_user`, `get_user_contact`, `add_user`, `edit_user`, `archive_user`, `restore_user`, `assign_public_holidays_to_user`                    |
+| **Departments**               | `list_departments`, `get_department`, `add_department`, `edit_department`, `delete_department`                                                             |
+| **Leave types**               | `list_leave_types`, `get_leave_type`, `list_leave_type_colors`, `list_leave_type_icons`, `create_leave_type`, `update_leave_type`, `delete_leave_type`     |
+| **Allowances**                | `list_all_allowances`, `get_user_allowance`, `update_user_allowance`, `update_user_carry_forward`, `add_user_toil`, `update_user_toil`, `delete_user_toil` |
+| **Locked dates**              | `list_locked_dates`, `add_locked_date`, `delete_locked_date`                                                                                               |
+| **Public holidays**           | `list_public_holidays`, `get_public_holiday`, `list_public_holiday_countries`                                                                              |
+| **Webhooks**                  | `list_webhook_events`                                                                                                                                      |
 
 > **Note:** Timetastic calls all leave bookings "holidays" for historical
-> reasons — the *Holidays* tools cover any kind of absence, not just annual
+> reasons — the _Holidays_ tools cover any kind of absence, not just annual
 > leave.
 
 ## Layout
