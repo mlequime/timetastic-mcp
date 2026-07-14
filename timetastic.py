@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+from datetime import datetime, timezone
 from typing import Any
 
 import httpx
@@ -114,7 +115,9 @@ class TimetasticClient:
                     0, f"could not reach Timetastic ({type(exc).__name__}: {exc})"
                 ) from exc
 
-            # Respect the documented rate limits (5 req/s; 1 req/s for absences).
+            # On 429 (rate limited) wait and retry, honouring the reset hint
+            # from the response headers. This is reactive: we do not proactively
+            # throttle to the documented 5 req/s (1 req/s for absences) limit.
             if response.status_code == 429 and attempt < self._max_retries:
                 await asyncio.sleep(_retry_after_seconds(response))
                 attempt += 1
@@ -187,8 +190,32 @@ def _error_message(response: httpx.Response) -> str:
     return response.reason_phrase or "request failed"
 
 
+_MAX_RETRY_WAIT = 60.0
+
+
 def _retry_after_seconds(response: httpx.Response) -> float:
+    """Seconds to wait before retrying a 429, derived from the response headers.
+
+    Prefers the standard ``Retry-After`` (integer seconds); falls back to
+    Timetastic's documented ``X-Rate-Limit-Reset`` (an ISO 8601 UTC reset time);
+    then a 1s default. Clamped to a sane maximum to avoid a pathologically long
+    sleep from a bad/skewed header.
+    """
     retry_after = response.headers.get("Retry-After")
     if retry_after and retry_after.isdigit():
-        return float(retry_after)
+        return min(float(retry_after), _MAX_RETRY_WAIT)
+
+    reset = response.headers.get("X-Rate-Limit-Reset")
+    if reset:
+        try:
+            reset_at = datetime.fromisoformat(reset)
+        except ValueError:
+            reset_at = None
+        if reset_at is not None:
+            if reset_at.tzinfo is None:
+                reset_at = reset_at.replace(tzinfo=timezone.utc)
+            seconds = (reset_at - datetime.now(timezone.utc)).total_seconds()
+            # Reset may already be in the past (retry now) or in the future.
+            return min(max(seconds, 0.0), _MAX_RETRY_WAIT)
+
     return 1.0
