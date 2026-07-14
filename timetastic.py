@@ -102,9 +102,17 @@ class TimetasticClient:
 
         attempt = 0
         while True:
-            response = await self._client.request(
-                method, path, params=clean_params, json=clean_json
-            )
+            try:
+                response = await self._client.request(
+                    method, path, params=clean_params, json=clean_json
+                )
+            except httpx.RequestError as exc:
+                # Transport-level failure (timeout, connection reset, DNS): no
+                # HTTP response exists, so surface it through the same error
+                # contract as HTTP failures, using status 0 to mark "no response".
+                raise TimetasticError(
+                    0, f"could not reach Timetastic ({type(exc).__name__}: {exc})"
+                ) from exc
 
             # Respect the documented rate limits (5 req/s; 1 req/s for absences).
             if response.status_code == 429 and attempt < self._max_retries:
